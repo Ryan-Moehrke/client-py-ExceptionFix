@@ -10,27 +10,28 @@ except ImportError as e:            # Python 3
     import urllib.parse as urlparse
 
 from auth import FHIRAuth
+from requests.exceptions import HTTPError
 
 FHIRJSONMimeType = 'application/fhir+json'
 
 logger = logging.getLogger(__name__)
 
 
-class FHIRUnauthorizedException(Exception):
+class FHIRUnauthorizedException(HTTPError):
     """ Indicating a 401 response.
     """
     def __init__(self, response):
         self.response = response
 
 
-class FHIRPermissionDeniedException(Exception):
+class FHIRPermissionDeniedException(HTTPError):
     """ Indicating a 403 response.
     """
     def __init__(self, response):
         self.response = response
 
 
-class FHIRNotFoundException(Exception):
+class FHIRNotFoundException(HTTPError):
     """ Indicating a 404 response.
     """
     def __init__(self, response):
@@ -80,7 +81,7 @@ class FHIRServer(object):
         """
         if self._capability is None or force:
             logger.info('Fetching CapabilityStatement from {0}'.format(self.base_uri))
-            from models import capabilitystatement
+            from fhirclient.models import capabilitystatement
             conf = capabilitystatement.CapabilityStatement.read_from('metadata', self)
             self._capability = conf
             
